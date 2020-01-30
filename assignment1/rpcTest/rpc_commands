@@ -1,0 +1,8 @@
+install rpcbind in linux:
+	$sudo apt-get install libncurses5-dev libncursesw5-dev
+
+rpcbind location:
+	sbin/rpcbind
+
+https://www.cs.rutgers.edu/~pxk/417/notes/rpc/step2.html
+
