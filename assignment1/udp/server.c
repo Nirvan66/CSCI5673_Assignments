@@ -24,11 +24,11 @@ int main() {
         exit(EXIT_FAILURE); 
     } 
       
-    memset(&servaddr, 0, sizeof(servaddr)); 
+    memset(&servaddr, 0, sizeof(servaddr));
     memset(&cliaddr, 0, sizeof(cliaddr)); 
       
     // Filling server information 
-    servaddr.sin_family    = AF_INET; // IPv4 
+    servaddr.sin_family = AF_INET; // IPv4 
     servaddr.sin_addr.s_addr = INADDR_ANY; //inet_addr("127.0.0.1");
     servaddr.sin_port = htons(PORT); 
       
@@ -61,7 +61,6 @@ int main() {
         rawtime = time(NULL);
         timeinfo = localtime ( &rawtime );
         sprintf(serverTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
-        // serverTime[strlen(serverTime)] = '\0';
 
         //send time
         sendto(sockfd, (const char *)serverTime, strlen(serverTime),  

@@ -61,6 +61,7 @@ int main() {
         n = recvfrom(sockfd, (char *)serverTime, MAXLINE,  
                     MSG_WAITALL, (struct sockaddr *) &servaddr, 
                     &len);
+        serverTime[n] = '\0';
 
         //time of reply
         rawtime = time(NULL);
