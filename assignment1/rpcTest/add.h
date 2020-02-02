@@ -25,14 +25,14 @@ typedef struct intpair intpair;
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define ADD 1
-extern  int * add_1(intpair *, CLIENT *);
-extern  int * add_1_svc(intpair *, struct svc_req *);
+extern  intpair * add_1(void *, CLIENT *);
+extern  intpair * add_1_svc(void *, struct svc_req *);
 extern int add_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define ADD 1
-extern  int * add_1();
-extern  int * add_1_svc();
+extern  intpair * add_1();
+extern  intpair * add_1_svc();
 extern int add_prog_1_freeresult ();
 #endif /* K&R C */
 

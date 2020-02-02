@@ -4,13 +4,13 @@
  * as a guideline for developing your own functions.
  */
 
-#include "add.h"
+#include "clock.h"
 #include <time.h>
 
-intpair *
-add_1_svc(void *argp, struct svc_req *rqstp)
+timetuple *
+time_1_svc(void *argp, struct svc_req *rqstp)
 {
-	static intpair  result;
+	static timetuple  result;
 
 	/*
 	 * insert server code here
@@ -19,9 +19,10 @@ add_1_svc(void *argp, struct svc_req *rqstp)
 	struct tm * timeinfo;
 	rawtime = time(NULL);
 	timeinfo = localtime ( &rawtime );
-	result.a = timeinfo->tm_hour;
-	result.b = timeinfo->tm_min;
-	printf("returning: %d,%d\n", result.a,result.b);
+	result.hours = timeinfo->tm_hour;
+	result.minutes = timeinfo->tm_min;
+	result.seconds = timeinfo->tm_sec;
+	printf("Server time sent: %d:%d:%d\n", result.hours,result.minutes,result.seconds);
 
 	return &result;
 }

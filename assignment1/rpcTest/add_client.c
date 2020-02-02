@@ -11,8 +11,8 @@ void
 add_prog_1(char *host)
 {
 	CLIENT *clnt;
-	int  *result_1;
-	intpair  add_1_arg;
+	intpair  *result_1;
+	char *add_1_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, ADD_PROG, ADD_VERS, "udp");
@@ -21,14 +21,12 @@ add_prog_1(char *host)
 		exit (1);
 	}
 #endif	/* DEBUG */
-	add_1_arg.a = 123;
-	add_1_arg.b = 22;
-	result_1 = add_1(&add_1_arg, clnt);
-	if (result_1 == (int *) NULL) {
+
+	result_1 = add_1((void*)&add_1_arg, clnt);
+	if (result_1 == (intpair *) NULL) {
 		clnt_perror (clnt, "call failed");
-	}
-	else {
-		printf("result = %d\n", *result_1);
+	}else {
+	printf("returning: %d,%d\n", result_1->a,result_1->b);
 	}
 #ifndef	DEBUG
 	clnt_destroy (clnt);

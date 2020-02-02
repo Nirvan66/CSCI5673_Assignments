@@ -3,18 +3,18 @@
 
 # Parameters
 
-CLIENT = add_client
-SERVER = add_server
+CLIENT = clock_client
+SERVER = clock_server
 
 SOURCES_CLNT.c = 
 SOURCES_CLNT.h = 
 SOURCES_SVC.c = 
 SOURCES_SVC.h = 
-SOURCES.x = add.x
+SOURCES.x = clock.x
 
-TARGETS_SVC.c = add_svc.c add_server.c add_xdr.c 
-TARGETS_CLNT.c = add_clnt.c add_client.c add_xdr.c 
-TARGETS = add.h add_xdr.c add_clnt.c add_svc.c add_client.c add_server.c
+TARGETS_SVC.c = clock_svc.c clock_server.c clock_xdr.c 
+TARGETS_CLNT.c = clock_clnt.c clock_client.c clock_xdr.c 
+TARGETS = clock.h clock_xdr.c clock_clnt.c clock_svc.c clock_client.c clock_server.c
 
 OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)
