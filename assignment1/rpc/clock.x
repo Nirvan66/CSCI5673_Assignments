@@ -2,6 +2,7 @@ struct timetuple {
         int hours;
         int minutes;
         int seconds;
+        long int u_seconds;
 };
 
 program TIME_PROG {

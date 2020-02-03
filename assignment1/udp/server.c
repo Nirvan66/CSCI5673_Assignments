@@ -3,6 +3,7 @@
 #include <stdlib.h> 
 #include <unistd.h> 
 #include <time.h>
+#include <sys/time.h>
 #include <string.h> 
 #include <sys/types.h> 
 #include <sys/socket.h> 
@@ -42,10 +43,11 @@ int main() {
     
     printf("Server started at: PORT: %d, ADDRESS: %d \n",
         servaddr.sin_port, servaddr.sin_addr.s_addr);
+    
     int len, n; 
-    time_t rawtime;
-    char serverTime[9];
+    struct timeval tv;
     struct tm * timeinfo;
+    char serverTime[MAXLINE];
     while(1)
     {
         len = sizeof(cliaddr);
@@ -58,9 +60,9 @@ int main() {
          buffer, cliaddr.sin_port, cliaddr.sin_addr.s_addr);
 
         //get local time
-        rawtime = time(NULL);
-        timeinfo = localtime ( &rawtime );
-        sprintf(serverTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+        gettimeofday(&tv, NULL); 
+        timeinfo = localtime(&tv.tv_sec);
+        sprintf(serverTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
 
         //send time
         sendto(sockfd, (const char *)serverTime, strlen(serverTime),  

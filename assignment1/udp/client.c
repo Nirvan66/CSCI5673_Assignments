@@ -4,6 +4,7 @@
 #include <unistd.h> 
 #include <string.h> 
 #include <time.h>
+#include <sys/time.h>
 #include <sys/types.h> 
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
@@ -13,11 +14,12 @@
 #define MAXLINE 1024 
 #define QUERY_MINUTES 60
 #define SLEEP_SECS 1
+// #define SERVER_ADDR inet_addr("192.168.0.23")
+#define SERVER_ADDR INADDR_ANY
 
 // Driver code 
 int main() { 
     int sockfd; 
-    char serverTime[MAXLINE]; 
     char *timeRequest = "Time please!";  
     struct sockaddr_in     servaddr; 
   
@@ -35,22 +37,30 @@ int main() {
     // Filling server information 
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
-    servaddr.sin_addr.s_addr = INADDR_ANY; 
-      
+    servaddr.sin_addr.s_addr = SERVER_ADDR;
+
+    // time_t rawtime;
+    // struct tm * timeinfo;
+    // rawtime = time(NULL);
+    // timeinfo = localtime ( &rawtime );
+    // sprintf(sendTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+
     int n, len; 
-    time_t rawtime;
-    char sendTime[MAXLINE];
+    struct timeval tv;
     struct tm * timeinfo;
+    char sendTime[MAXLINE];
     char replyTime[MAXLINE];
+    char serverTime[MAXLINE]; 
+
     FILE * fp;
     fp = fopen ("udp_output.txt","w");
     
     for (int i = 0; i < QUERY_MINUTES; ++i)
     {
         //request time
-        rawtime = time(NULL);
-        timeinfo = localtime ( &rawtime );
-        sprintf(sendTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+        gettimeofday(&tv, NULL); 
+        timeinfo = localtime(&tv.tv_sec);
+        sprintf(sendTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
         sendTime[strlen(sendTime)] = '\0';
         printf("\nTime of request : %s\n", sendTime);
 
@@ -64,14 +74,15 @@ int main() {
         serverTime[n] = '\0';
 
         //time of reply
-        rawtime = time(NULL);
-        timeinfo = localtime ( &rawtime );
-        sprintf(replyTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+        gettimeofday(&tv, NULL); 
+        timeinfo = localtime(&tv.tv_sec);
+        sprintf(replyTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
         replyTime[strlen(replyTime)] = '\0';
-        printf("Time of reply : %s\n", replyTime);
 
         printf("Server time: %s\n", serverTime);
-        fprintf (fp, "%s,%s,%s\n",sendTime,replyTime,serverTime);
+        printf("Time of reply : %s\n", replyTime);
+
+        fprintf (fp, "%s,%s,%s\n",sendTime,serverTime,replyTime);
         sleep(SLEEP_SECS);
     }
     fclose (fp);

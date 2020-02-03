@@ -5,6 +5,8 @@
  */
 
 #include "clock.h"
+
+#include <sys/time.h>
 #include <time.h>
 
 timetuple *
@@ -15,14 +17,16 @@ time_1_svc(void *argp, struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
-	time_t rawtime;
+	struct timeval tv;
 	struct tm * timeinfo;
-	rawtime = time(NULL);
-	timeinfo = localtime ( &rawtime );
+	gettimeofday(&tv, NULL); 
+	timeinfo = localtime(&tv.tv_sec);
+
 	result.hours = timeinfo->tm_hour;
 	result.minutes = timeinfo->tm_min;
 	result.seconds = timeinfo->tm_sec;
-	printf("Server time sent: %d:%d:%d\n", result.hours,result.minutes,result.seconds);
+	result.u_seconds = tv.tv_usec;
+	printf("Server time sent: %d:%d:%d.%ld\n", result.hours,result.minutes,result.seconds,result.u_seconds);
 
 	return &result;
 }

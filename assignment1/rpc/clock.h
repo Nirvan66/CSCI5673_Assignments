@@ -18,6 +18,7 @@ struct timetuple {
 	int hours;
 	int minutes;
 	int seconds;
+	long u_seconds;
 };
 typedef struct timetuple timetuple;
 
