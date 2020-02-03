@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #define QUERY_MINUTES 60
 #define SLEEP_SECS 1
