@@ -3,23 +3,20 @@
  * It was generated using rpcgen.
  */
 
-#include <memory.h> /* for memset */
 #include "clock.h"
 
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
 
 timetuple *
-time_1(void *argp, CLIENT *clnt)
+time_1(argp, clnt)
+	void *argp;
+	CLIENT *clnt;
 {
 	static timetuple clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if (clnt_call (clnt, TIME,
-		(xdrproc_t) xdr_void, (caddr_t) argp,
-		(xdrproc_t) xdr_timetuple, (caddr_t) &clnt_res,
-		TIMEOUT) != RPC_SUCCESS) {
+	if (clnt_call(clnt, TIME, xdr_void, argp, xdr_timetuple, &clnt_res, TIMEOUT) != RPC_SUCCESS)
 		return (NULL);
-	}
 	return (&clnt_res);
 }

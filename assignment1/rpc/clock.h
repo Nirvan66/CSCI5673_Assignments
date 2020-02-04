@@ -6,12 +6,9 @@
 #ifndef _CLOCK_H_RPCGEN
 #define _CLOCK_H_RPCGEN
 
+#define RPCGEN_VERSION	199506
+
 #include <rpc/rpc.h>
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 
 struct timetuple {
@@ -21,35 +18,32 @@ struct timetuple {
 	long u_seconds;
 };
 typedef struct timetuple timetuple;
+#ifdef __cplusplus
+extern "C" bool_t xdr_timetuple(XDR *, timetuple*);
+#elif __STDC__
+extern  bool_t xdr_timetuple(XDR *, timetuple*);
+#else /* Old Style C */
+bool_t xdr_timetuple();
+#endif /* Old Style C */
 
-#define TIME_PROG 0x23451111
-#define TIME_VERS 1
 
-#if defined(__STDC__) || defined(__cplusplus)
-#define TIME 1
-extern  timetuple * time_1(void *, CLIENT *);
-extern  timetuple * time_1_svc(void *, struct svc_req *);
-extern int time_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
-
-#else /* K&R C */
-#define TIME 1
-extern  timetuple * time_1();
-extern  timetuple * time_1_svc();
-extern int time_prog_1_freeresult ();
-#endif /* K&R C */
-
-/* the xdr functions */
-
-#if defined(__STDC__) || defined(__cplusplus)
-extern  bool_t xdr_timetuple (XDR *, timetuple*);
-
-#else /* K&R C */
-extern bool_t xdr_timetuple ();
-
-#endif /* K&R C */
+#define TIME_PROG ((rpc_uint)0x23451111)
+#define TIME_VERS ((rpc_uint)1)
 
 #ifdef __cplusplus
-}
-#endif
+#define TIME ((rpc_uint)1)
+extern "C" timetuple * time_1(void *, CLIENT *);
+extern "C" timetuple * time_1_svc(void *, struct svc_req *);
+
+#elif __STDC__
+#define TIME ((rpc_uint)1)
+extern  timetuple * time_1(void *, CLIENT *);
+extern  timetuple * time_1_svc(void *, struct svc_req *);
+
+#else /* Old Style C */
+#define TIME ((rpc_uint)1)
+extern  timetuple * time_1();
+extern  timetuple * time_1_svc();
+#endif /* Old Style C */
 
 #endif /* !_CLOCK_H_RPCGEN */

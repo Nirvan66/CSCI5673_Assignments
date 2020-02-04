@@ -6,56 +6,55 @@
 #include "clock.h"
 
 bool_t
-xdr_timetuple (XDR *xdrs, timetuple *objp)
+xdr_timetuple(xdrs, objp)
+	XDR *xdrs;
+	timetuple *objp;
 {
-	register int32_t *buf;
-
+	int32_t *buf;
 
 	if (xdrs->x_op == XDR_ENCODE) {
-		buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
+		buf = (int32_t *)XDR_INLINE(xdrs, 4 * BYTES_PER_XDR_UNIT);
 		if (buf == NULL) {
-			 if (!xdr_int (xdrs, &objp->hours))
-				 return FALSE;
-			 if (!xdr_int (xdrs, &objp->minutes))
-				 return FALSE;
-			 if (!xdr_int (xdrs, &objp->seconds))
-				 return FALSE;
-			 if (!xdr_long (xdrs, &objp->u_seconds))
-				 return FALSE;
+			if (!xdr_int(xdrs, &objp->hours))
+				return (FALSE);
+			if (!xdr_int(xdrs, &objp->minutes))
+				return (FALSE);
+			if (!xdr_int(xdrs, &objp->seconds))
+				return (FALSE);
+			if (!xdr_long(xdrs, &objp->u_seconds))
+				return (FALSE);
 		} else {
 			IXDR_PUT_LONG(buf, objp->hours);
 			IXDR_PUT_LONG(buf, objp->minutes);
 			IXDR_PUT_LONG(buf, objp->seconds);
 			IXDR_PUT_LONG(buf, objp->u_seconds);
 		}
-		return TRUE;
 	} else if (xdrs->x_op == XDR_DECODE) {
-		buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
+		buf = (int32_t *)XDR_INLINE(xdrs, 4 * BYTES_PER_XDR_UNIT);
 		if (buf == NULL) {
-			 if (!xdr_int (xdrs, &objp->hours))
-				 return FALSE;
-			 if (!xdr_int (xdrs, &objp->minutes))
-				 return FALSE;
-			 if (!xdr_int (xdrs, &objp->seconds))
-				 return FALSE;
-			 if (!xdr_long (xdrs, &objp->u_seconds))
-				 return FALSE;
+			if (!xdr_int(xdrs, &objp->hours))
+				return (FALSE);
+			if (!xdr_int(xdrs, &objp->minutes))
+				return (FALSE);
+			if (!xdr_int(xdrs, &objp->seconds))
+				return (FALSE);
+			if (!xdr_long(xdrs, &objp->u_seconds))
+				return (FALSE);
 		} else {
 			objp->hours = IXDR_GET_LONG(buf);
 			objp->minutes = IXDR_GET_LONG(buf);
 			objp->seconds = IXDR_GET_LONG(buf);
 			objp->u_seconds = IXDR_GET_LONG(buf);
 		}
-	 return TRUE;
+	} else {
+		if (!xdr_int(xdrs, &objp->hours))
+			return (FALSE);
+		if (!xdr_int(xdrs, &objp->minutes))
+			return (FALSE);
+		if (!xdr_int(xdrs, &objp->seconds))
+			return (FALSE);
+		if (!xdr_long(xdrs, &objp->u_seconds))
+			return (FALSE);
 	}
-
-	 if (!xdr_int (xdrs, &objp->hours))
-		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->minutes))
-		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->seconds))
-		 return FALSE;
-	 if (!xdr_long (xdrs, &objp->u_seconds))
-		 return FALSE;
-	return TRUE;
+	return (TRUE);
 }

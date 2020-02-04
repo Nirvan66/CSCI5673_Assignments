@@ -28,7 +28,7 @@ int main(int argc, char * argv[]) {
     }
     else{
         printf("Please provide server address and save file name. \neg: ./client 0 udp_ouptut.txt \n");
-        exit(1)
+        exit(1);
     }
   
     // Creating socket file descriptor
@@ -70,6 +70,7 @@ int main(int argc, char * argv[]) {
     
     for (int i = 0; i < QUERY_MINUTES; ++i)
     {
+        len = sizeof(servaddr);
         //request time
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
@@ -78,7 +79,7 @@ int main(int argc, char * argv[]) {
         printf("\nTime of request : %s\n", sendTime);
 
         sendto(sockfd, (const char *)timeRequest, strlen(timeRequest), 
-            MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
+            0x0, (const struct sockaddr *) &servaddr,  
                 sizeof(servaddr));
               
         n = recvfrom(sockfd, (char *)serverTime, MAXLINE,  
