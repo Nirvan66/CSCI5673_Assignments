@@ -66,7 +66,7 @@ int main() {
 
         //send time
         sendto(sockfd, (const char *)serverTime, strlen(serverTime),  
-            MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
+            0x0, (const struct sockaddr *) &cliaddr, 
                 len); 
         printf("Time sent : %s\n", serverTime);
     } 

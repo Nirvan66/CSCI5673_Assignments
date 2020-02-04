@@ -57,6 +57,7 @@ int main() {
     
     for (int i = 0; i < QUERY_MINUTES; ++i)
     {
+        len = sizeof(servaddr);
         //request time
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
@@ -65,7 +66,7 @@ int main() {
         printf("\nTime of request : %s\n", sendTime);
 
         sendto(sockfd, (const char *)timeRequest, strlen(timeRequest), 
-            MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
+            0x0, (const struct sockaddr *) &servaddr,  
                 sizeof(servaddr));
               
         n = recvfrom(sockfd, (char *)serverTime, MAXLINE,  
