@@ -18,11 +18,15 @@
 #define SERVER_ADDR INADDR_ANY
 
 // Driver code 
-int main() { 
+int main(int argc, char * argv[]) { 
     int sockfd; 
     char *timeRequest = "Time please!";  
     struct sockaddr_in     servaddr; 
-  
+    char * server_address;
+
+    if (argc == 2) server_address = argv[1];
+    else server_address = "";
+
     // Creating socket file descriptor
     // domain = AF_INET for IPv4/ AF_INET6 for IPv6
     // type = SOCK_STREAM for TCP / SOCK_DGRAM for UDP
@@ -37,7 +41,14 @@ int main() {
     // Filling server information 
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
-    servaddr.sin_addr.s_addr = SERVER_ADDR;
+    if (server_address == "")  {
+        printf("connecting to localhost...\n");
+        servaddr.sin_addr.s_addr = SERVER_ADDR;
+    }
+
+    else servaddr.sin_addr.s_addr = inet_addr(server_address);
+    printf("server address: %s", server_address);
+   
 
     // time_t rawtime;
     // struct tm * timeinfo;
