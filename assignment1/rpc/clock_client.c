@@ -14,9 +14,8 @@
 #define SLEEP_SECS 1
 #define MAXLINE 1024 
 
-
 void
-time_prog_1(char *host)
+time_prog_1(char *host, char *saveFile)
 {
 	CLIENT *clnt;
 	timetuple  *result_1;
@@ -29,6 +28,7 @@ time_prog_1(char *host)
 		exit (1);
 	}
 #endif	/* DEBUG */
+	printf("Server address: %s, Save File: %s",host,saveFile);
 	struct timeval tv;
 	struct tm * timeinfo;
 	char sendTime[MAXLINE];
@@ -36,7 +36,8 @@ time_prog_1(char *host)
 	char serverTime[MAXLINE];
 
 	FILE * fp;
-	fp = fopen ("rpc_output.txt","w");
+	fp = fopen (saveFile,"w");
+	fprintf (fp, "Sent_Time,Server_Time,Reply_Time\n");
 	for (int i = 0; i < QUERY_MINUTES; ++i)
 	{
 		gettimeofday(&tv, NULL); 
@@ -77,12 +78,15 @@ int
 main (int argc, char *argv[])
 {
 	char *host;
+	char *saveFile;
 
-	if (argc < 2) {
-		printf ("usage: %s server_host\n", argv[0]);
+	if (argc < 3) {
+		printf("Please provide server address and save file name. \neg: ./clock_client localhost rpc_ouptut.txt \n");
 		exit (1);
 	}
+
 	host = argv[1];
-	time_prog_1 (host);
+	saveFile = argv[2];
+	time_prog_1 (host,saveFile);
 exit (0);
 }

@@ -14,14 +14,22 @@
 #define MAXLINE 1024 
 #define QUERY_MINUTES 60
 #define SLEEP_SECS 1
-// #define SERVER_ADDR inet_addr("192.168.0.23")
-#define SERVER_ADDR INADDR_ANY
-
 // Driver code 
-int main() { 
+int main(int argc, char * argv[]) { 
     int sockfd; 
     char *timeRequest = "Time please!";  
-    struct sockaddr_in     servaddr; 
+    struct sockaddr_in     servaddr;
+    char * server_address;
+    char * saveFile;
+
+    if (argc == 3){
+       server_address = argv[1];
+       saveFile = argv[2];
+    }
+    else{
+        printf("Please provide server address and save file name. \neg: ./client 0 udp_ouptut.txt \n");
+        exit(1)
+    }
   
     // Creating socket file descriptor
     // domain = AF_INET for IPv4/ AF_INET6 for IPv6
@@ -37,7 +45,11 @@ int main() {
     // Filling server information 
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
-    servaddr.sin_addr.s_addr = SERVER_ADDR;
+    if (server_address == "0")  {
+        servaddr.sin_addr.s_addr = INADDR_ANY;
+    }
+    else servaddr.sin_addr.s_addr = inet_addr(server_address);
+    printf("Server address: %d, Save File: %s", servaddr.sin_addr.s_addr, saveFile);
 
     // time_t rawtime;
     // struct tm * timeinfo;
@@ -53,7 +65,8 @@ int main() {
     char serverTime[MAXLINE]; 
 
     FILE * fp;
-    fp = fopen ("udp_output.txt","w");
+    fp = fopen (saveFile,"w");
+    fprintf (fp, "Sent_Time,Server_Time,Reply_Time\n");
     
     for (int i = 0; i < QUERY_MINUTES; ++i)
     {
