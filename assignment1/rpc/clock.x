@@ -4,9 +4,13 @@ struct timetuple {
         int seconds;
         long int u_seconds;
 };
+struct serverTime{
+    struct timetuple receive;
+    struct timetuple send;
+};
 
 program TIME_PROG {
         version TIME_VERS {
-                timetuple TIME() = 1;
+                serverTime TIME() = 1;
         } = 1;
 } = 0x23451111;

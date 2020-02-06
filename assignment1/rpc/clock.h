@@ -22,19 +22,25 @@ struct timetuple {
 };
 typedef struct timetuple timetuple;
 
+struct serverTime {
+	struct timetuple receive;
+	struct timetuple send;
+};
+typedef struct serverTime serverTime;
+
 #define TIME_PROG 0x23451111
 #define TIME_VERS 1
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define TIME 1
-extern  timetuple * time_1(void *, CLIENT *);
-extern  timetuple * time_1_svc(void *, struct svc_req *);
+extern  serverTime * time_1(void *, CLIENT *);
+extern  serverTime * time_1_svc(void *, struct svc_req *);
 extern int time_prog_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define TIME 1
-extern  timetuple * time_1();
-extern  timetuple * time_1_svc();
+extern  serverTime * time_1();
+extern  serverTime * time_1_svc();
 extern int time_prog_1_freeresult ();
 #endif /* K&R C */
 
@@ -42,9 +48,11 @@ extern int time_prog_1_freeresult ();
 
 #if defined(__STDC__) || defined(__cplusplus)
 extern  bool_t xdr_timetuple (XDR *, timetuple*);
+extern  bool_t xdr_serverTime (XDR *, serverTime*);
 
 #else /* K&R C */
 extern bool_t xdr_timetuple ();
+extern bool_t xdr_serverTime ();
 
 #endif /* K&R C */
 

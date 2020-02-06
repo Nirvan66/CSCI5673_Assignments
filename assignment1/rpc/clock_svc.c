@@ -33,7 +33,7 @@ time_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 	case TIME:
 		_xdr_argument = (xdrproc_t) xdr_void;
-		_xdr_result = (xdrproc_t) xdr_timetuple;
+		_xdr_result = (xdrproc_t) xdr_serverTime;
 		local = (char *(*)(char *, struct svc_req *)) time_1_svc;
 		break;
 

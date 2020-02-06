@@ -5,28 +5,38 @@
  */
 
 #include "clock.h"
-
 #include <sys/time.h>
 #include <time.h>
 
-timetuple *
+serverTime *
 time_1_svc(void *argp, struct svc_req *rqstp)
 {
-	static timetuple  result;
+	static serverTime  result;
 
 	/*
 	 * insert server code here
 	 */
 	struct timeval tv;
 	struct tm * timeinfo;
+
 	gettimeofday(&tv, NULL); 
 	timeinfo = localtime(&tv.tv_sec);
+	result.receive.hours = timeinfo->tm_hour;
+	result.receive.minutes = timeinfo->tm_min;
+	result.receive.seconds = timeinfo->tm_sec;
+	result.receive.u_seconds = tv.tv_usec;
+	printf("\nServer receive time: %d:%d:%d.%ld\n", 
+            result.receive.hours, result.receive.minutes, result.receive.seconds, result.receive.u_seconds );
 
-	result.hours = timeinfo->tm_hour;
-	result.minutes = timeinfo->tm_min;
-	result.seconds = timeinfo->tm_sec;
-	result.u_seconds = tv.tv_usec;
-	printf("Server time sent: %d:%d:%d.%ld\n", result.hours,result.minutes,result.seconds,result.u_seconds);
+
+    gettimeofday(&tv, NULL); 
+    timeinfo = localtime(&tv.tv_sec);
+    result.send.hours = timeinfo->tm_hour;
+    result.send.minutes = timeinfo->tm_min;
+    result.send.seconds = timeinfo->tm_sec;
+    result.send.u_seconds = tv.tv_usec;
+    printf("Server send time: %d:%d:%d.%ld\n", 
+            result.send.hours, result.send.minutes, result.send.seconds, result.send.u_seconds );
 
 	return &result;
 }

@@ -5,20 +5,20 @@
  */
 
 #include "clock.h"
-
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
-#define QUERY_MINUTES 60
+#define QUERY_MINUTES 10
 #define SLEEP_SECS 1
-#define MAXLINE 1024 
+#define MAXLINE 1024
+
 
 void
-time_prog_1(char *host, char *saveFile)
+time_prog_1(char *host, char * saveFile)
 {
 	CLIENT *clnt;
-	timetuple  *result_1;
+	serverTime  *result_1;
 	char *time_1_arg;
 
 #ifndef	DEBUG
@@ -28,43 +28,52 @@ time_prog_1(char *host, char *saveFile)
 		exit (1);
 	}
 #endif	/* DEBUG */
-	printf("Server address: %s, Save File: %s",host,saveFile);
+	printf("Server address: %s, Save File: %s\n",host,saveFile);
 	struct timeval tv;
 	struct tm * timeinfo;
-	char sendTime[MAXLINE];
-	char replyTime[MAXLINE];
-	char serverTime[MAXLINE];
+	char clientSend[MAXLINE];
+    char serverReceive[MAXLINE];
+    char serverSend[MAXLINE];
+    char clientReceive[MAXLINE];
 
-	FILE * fp;
+    FILE * fp;
 	fp = fopen (saveFile,"w");
-	fprintf (fp, "Sent_Time,Server_Time,Reply_Time\n");
+	fprintf (fp, "Client_Send,Server_Receive,Server_Send,Client_Receive\n");
 	for (int i = 0; i < QUERY_MINUTES; ++i)
-	{
-		gettimeofday(&tv, NULL); 
-		timeinfo = localtime(&tv.tv_sec);
-		sprintf(sendTime, "%d:%d:%d.%ld", 
-			timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
-	    sendTime[strlen(sendTime)] = '\0';
-	    printf("\nTime of request : %s\n", sendTime);
+    {	//time of client send
+    	gettimeofday(&tv, NULL); 
+        timeinfo = localtime(&tv.tv_sec);
+        sprintf(clientSend, "%d:%d:%d.%ld", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        clientSend[strlen(clientSend)] = '\0';
+        printf("\nClient send time : %s\n", clientSend);
 
 		result_1 = time_1((void*)&time_1_arg, clnt);
-		if (result_1 == (timetuple *) NULL) {
+		if (result_1 == (serverTime *) NULL) {
 			clnt_perror (clnt, "call failed");
-		}else {
-	        gettimeofday(&tv, NULL); 
-			timeinfo = localtime(&tv.tv_sec);
-			sprintf(replyTime, "%d:%d:%d.%ld", 
-				timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
-	        replyTime[strlen(replyTime)] = '\0';
+		}else{
+			//time of client receive
+			gettimeofday(&tv, NULL); 
+	        timeinfo = localtime(&tv.tv_sec);
+	        sprintf(clientReceive, "%d:%d:%d.%ld", 
+	            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+	        clientReceive[strlen(clientReceive)] = '\0';
 
-	        sprintf(serverTime, "%d:%d:%d.%ld", 
-	        	result_1->hours, result_1->minutes, result_1->seconds, result_1->u_seconds);
-	        serverTime[strlen(serverTime)] = '\0';
 
-	        printf("Server time: %s\n", serverTime);
-	        printf("Time of reply : %s\n", replyTime);
+	        //Extract Server times
+	        sprintf(serverReceive, "%d:%d:%d.%ld",
+	         result_1->receive.hours, result_1->receive.minutes, result_1->receive.seconds, result_1->receive.u_seconds);
+	        serverReceive[strlen(serverReceive)] = '\0';
 
-	        fprintf (fp, "%s,%s,%s\n",sendTime,serverTime,replyTime);
+	        sprintf(serverSend, "%d:%d:%d.%ld", 
+	            result_1->send.hours, result_1->send.minutes, result_1->send.seconds, result_1->send.u_seconds);
+	        serverSend[strlen(serverSend)] = '\0';
+
+	        printf("Server receive time: %s\n", serverReceive);
+	        printf("Server send time: %s\n", serverSend);
+	        printf("Client receive time: %s\n", clientReceive);
+
+	        fprintf (fp, "%s,%s,%s,%s\n",clientSend,serverReceive,serverSend,clientReceive);
 	        sleep(SLEEP_SECS);
 		}
 	}
@@ -84,7 +93,6 @@ main (int argc, char *argv[])
 		printf("Please provide server address and save file name. \neg: ./clock_client localhost rpc_ouptut.txt \n");
 		exit (1);
 	}
-
 	host = argv[1];
 	saveFile = argv[2];
 	time_prog_1 (host,saveFile);

@@ -59,3 +59,15 @@ xdr_timetuple (XDR *xdrs, timetuple *objp)
 		 return FALSE;
 	return TRUE;
 }
+
+bool_t
+xdr_serverTime (XDR *xdrs, serverTime *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_timetuple (xdrs, &objp->receive))
+		 return FALSE;
+	 if (!xdr_timetuple (xdrs, &objp->send))
+		 return FALSE;
+	return TRUE;
+}

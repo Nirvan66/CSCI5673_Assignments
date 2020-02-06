@@ -9,11 +9,23 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
-  
+
 #define PORT     8080 
 #define MAXLINE 1024 
-#define QUERY_MINUTES 60
+#define QUERY_MINUTES 10
 #define SLEEP_SECS 1
+
+struct timetuple {
+        int hours;
+        int minutes;
+        int seconds;
+        long int u_seconds;
+};
+struct serverTime{
+    struct timetuple receive;
+    struct timetuple send;
+};
+
 // Driver code 
 int main(int argc, char * argv[]) { 
     int sockfd; 
@@ -28,7 +40,7 @@ int main(int argc, char * argv[]) {
     }
     else{
         printf("Please provide server address and save file name. \neg: ./client 0 udp_ouptut.txt \n");
-        exit(1)
+        exit(1);
     }
   
     // Creating socket file descriptor
@@ -49,7 +61,7 @@ int main(int argc, char * argv[]) {
         servaddr.sin_addr.s_addr = INADDR_ANY;
     }
     else servaddr.sin_addr.s_addr = inet_addr(server_address);
-    printf("Server address: %d, Save File: %s", servaddr.sin_addr.s_addr, saveFile);
+    printf("Server address: %d, Save File: %s\n", servaddr.sin_addr.s_addr, saveFile);
 
     // time_t rawtime;
     // struct tm * timeinfo;
@@ -60,42 +72,55 @@ int main(int argc, char * argv[]) {
     int n, len; 
     struct timeval tv;
     struct tm * timeinfo;
-    char sendTime[MAXLINE];
-    char replyTime[MAXLINE];
-    char serverTime[MAXLINE]; 
+    char clientSend[MAXLINE];
+    char serverReceive[MAXLINE];
+    char serverSend[MAXLINE];
+    char clientReceive[MAXLINE];
+    struct serverTime sT;
 
     FILE * fp;
     fp = fopen (saveFile,"w");
-    fprintf (fp, "Sent_Time,Server_Time,Reply_Time\n");
+    fprintf (fp, "Client_Send,Server_Receive,Server_Send,Client_Receive\n");
     
     for (int i = 0; i < QUERY_MINUTES; ++i)
     {
         //request time
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        sprintf(sendTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
-        sendTime[strlen(sendTime)] = '\0';
-        printf("\nTime of request : %s\n", sendTime);
+        sprintf(clientSend, "%d:%d:%d.%ld", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        clientSend[strlen(clientSend)] = '\0';
+        printf("\nClient send time : %s\n", clientSend);
 
         sendto(sockfd, (const char *)timeRequest, strlen(timeRequest), 
             MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
                 sizeof(servaddr));
               
-        n = recvfrom(sockfd, (char *)serverTime, MAXLINE,  
+        n = recvfrom(sockfd, (struct serverTime *)&sT, sizeof(sT),  
                     MSG_WAITALL, (struct sockaddr *) &servaddr, 
                     &len);
-        serverTime[n] = '\0';
 
         //time of reply
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        sprintf(replyTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
-        replyTime[strlen(replyTime)] = '\0';
+        sprintf(clientReceive, "%d:%d:%d.%ld", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        clientReceive[strlen(clientReceive)] = '\0';
 
-        printf("Server time: %s\n", serverTime);
-        printf("Time of reply : %s\n", replyTime);
+        //Extract Server times
+        sprintf(serverReceive, "%d:%d:%d.%ld",
+         sT.receive.hours, sT.receive.minutes, sT.receive.seconds, sT.receive.u_seconds);
+        serverReceive[strlen(serverReceive)] = '\0';
 
-        fprintf (fp, "%s,%s,%s\n",sendTime,serverTime,replyTime);
+        sprintf(serverSend, "%d:%d:%d.%ld", 
+            sT.send.hours, sT.send.minutes, sT.send.seconds, sT.send.u_seconds);
+        serverSend[strlen(serverSend)] = '\0';
+
+        printf("Server receive time: %s\n", serverReceive);
+        printf("Server send time: %s\n", serverSend);
+        printf("Client receive time: %s\n", clientReceive);
+
+        fprintf (fp, "%s,%s,%s,%s\n",clientSend,serverReceive,serverSend,clientReceive);
         sleep(SLEEP_SECS);
     }
     fclose (fp);

@@ -16,17 +16,46 @@
 //     return currTime;
 // }
 
+struct timetuple {
+        int hours;
+        int minutes;
+        int seconds;
+        long int u_seconds;
+};
+struct serverTime{
+    struct timetuple receive;
+    struct timetuple send;
+};
+
 int main()
 {
+	struct serverTime  sT;
 	struct timeval tv;
-	char output[30];
-	struct tm * timeinfo;
+    struct tm * timeinfo;
 
 	gettimeofday(&tv, NULL); 
-	timeinfo = localtime(&tv.tv_sec);
-	sprintf(output, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+    timeinfo = localtime(&tv.tv_sec);
+    sT.receive.hours = timeinfo->tm_hour;
+    sT.receive.minutes = timeinfo->tm_min;
+    sT.receive.seconds = timeinfo->tm_sec;
+    sT.receive.u_seconds = tv.tv_usec;
+
+    gettimeofday(&tv, NULL); 
+    timeinfo = localtime(&tv.tv_sec);
+    sT.send.hours = timeinfo->tm_hour;
+    sT.send.minutes = timeinfo->tm_min;
+    sT.send.seconds = timeinfo->tm_sec;
+    sT.send.u_seconds = tv.tv_usec;
+
+	// struct timeval tv;
+	// char output[30];
+	// struct tm * timeinfo;
+
+	// gettimeofday(&tv, NULL); 
+	// timeinfo = localtime(&tv.tv_sec);
+	// sprintf(output, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
 	
-	printf("Current Time : %s\n", output);
+	// printf("Current Time : %s\n", output);
 
 
 	// struct timeval tv;

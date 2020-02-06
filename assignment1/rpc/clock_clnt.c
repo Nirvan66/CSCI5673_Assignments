@@ -9,15 +9,15 @@
 /* Default timeout can be changed using clnt_control() */
 static struct timeval TIMEOUT = { 25, 0 };
 
-timetuple *
+serverTime *
 time_1(void *argp, CLIENT *clnt)
 {
-	static timetuple clnt_res;
+	static serverTime clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, TIME,
 		(xdrproc_t) xdr_void, (caddr_t) argp,
-		(xdrproc_t) xdr_timetuple, (caddr_t) &clnt_res,
+		(xdrproc_t) xdr_serverTime, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
