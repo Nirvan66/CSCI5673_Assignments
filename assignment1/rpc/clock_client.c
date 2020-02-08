@@ -9,8 +9,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define QUERY_MINUTES 10
-#define SLEEP_SECS 1
+#define QUERY_MINUTES 120
+#define SLEEP_SECS 60
 #define MAXLINE 1024
 
 
