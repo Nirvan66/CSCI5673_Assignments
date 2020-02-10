@@ -1,5 +1,5 @@
 /*
-Creator: Nirvan S.P. Theethira
+Creators: Nirvan S.P. Theethira, Zach McGrath
 Date: 02/10/2020
 Purpose: CSCI5673 Assignment 1
 Description: Server side implementation of UDP client-server model 
