@@ -11,7 +11,7 @@
 #include <math.h>
 
 #define QUERY_MINUTES 120
-#define SLEEP_SECS 1
+#define SLEEP_SECS 60
 #define MAXLINE 1024
 
 

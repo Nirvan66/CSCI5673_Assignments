@@ -14,7 +14,7 @@
 #define PORT     8080 
 #define MAXLINE 1024 
 #define QUERY_MINUTES 120
-#define SLEEP_SECS 1
+#define SLEEP_SECS 60
 
 struct timetuple {
         int hours;
