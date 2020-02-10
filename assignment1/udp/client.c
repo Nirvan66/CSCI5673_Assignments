@@ -1,4 +1,15 @@
-// Client side implementation of UDP client-server model 
+/*
+Creator: Nirvan S.P. Theethira
+Date: 02/10/2020
+Purpose: CSCI5673 Assignment 1
+Description: Client side implementation of UDP client-server model
+
+Sample Build:
+    gcc client.c -o client
+Sample Run:
+    ./client 0 test.txt
+Note: run server on the same address before client
+*/
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h> 
@@ -16,11 +27,13 @@
 #define QUERY_MINUTES 120
 #define SLEEP_SECS 60
 
+//Used to send time from server to client
 struct timetuple {
         int hours;
         int minutes;
         float seconds;
 };
+//Used to send time from server to client
 struct serverTime{
     struct timetuple receive;
     struct timetuple send;
@@ -46,7 +59,6 @@ int main(int argc, char * argv[]) {
     // Creating socket file descriptor
     // domain = AF_INET for IPv4/ AF_INET6 for IPv6
     // type = SOCK_STREAM for TCP / SOCK_DGRAM for UDP
-    // 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
         perror("socket creation failed"); 
         exit(EXIT_FAILURE); 
@@ -55,6 +67,8 @@ int main(int argc, char * argv[]) {
     memset(&servaddr, 0, sizeof(servaddr)); 
       
     // Filling server information 
+    //INADDR_ANY=0 for same machine
+    //inet_addr(<IP Address>) for diffrent machines
     servaddr.sin_family = AF_INET; 
     servaddr.sin_port = htons(PORT); 
     if (server_address == "0")  {
@@ -62,12 +76,6 @@ int main(int argc, char * argv[]) {
     }
     else servaddr.sin_addr.s_addr = inet_addr(server_address);
     printf("Server address: %d, Save File: %s\n", servaddr.sin_addr.s_addr, saveFile);
-
-    // time_t rawtime;
-    // struct tm * timeinfo;
-    // rawtime = time(NULL);
-    // timeinfo = localtime ( &rawtime );
-    // sprintf(sendTime, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
 
     int n, len; 
     struct timeval tv;
@@ -92,10 +100,17 @@ int main(int argc, char * argv[]) {
         clientSend[strlen(clientSend)] = '\0';
         printf("\nClient send time: %s\n", clientSend);
 
+        //MSG_CONFIRM: 
+        //Tell the link layer that forward progress happened: you got a
+        //successful reply from the other side.  If the link layer
+        //doesn't get this it will regularly reprobe the neighbor
         sendto(sockfd, (const char *)timeRequest, strlen(timeRequest), 
             MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
                 sizeof(servaddr));
-              
+
+        //MSG_WAITALL:
+        //This flag requests that the operation block until the full
+        //request is satisfied.
         n = recvfrom(sockfd, (struct serverTime *)&sT, sizeof(sT),  
                     MSG_WAITALL, (struct sockaddr *) &servaddr, 
                     &len);
@@ -120,6 +135,7 @@ int main(int argc, char * argv[]) {
         printf("Server send time: %s\n", serverSend);
         printf("Client receive time: %s\n", clientReceive);
 
+        //write time to file
         fprintf (fp, "%s,%s,%s,%s\n",clientSend,serverReceive,serverSend,clientReceive);
         sleep(SLEEP_SECS);
     }

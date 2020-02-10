@@ -1,3 +1,15 @@
+/*
+Creator: Nirvan S.P. Theethira
+Date: 02/10/2020
+Purpose: CSCI5673 Assignment 1
+Description: Server side implementation of RPC client-server model
+
+Sample Build:
+    make
+Sample Run:
+    ./server_client
+Note: run server on the same address before client
+*/
 #include "clock.h"
 #include <sys/time.h>
 #include <time.h>
@@ -7,10 +19,7 @@ serverTime *
 time_1_svc(void *argp, struct svc_req *rqstp)
 {
 	static serverTime  result;
-
-	/*
-	 * insert server code here
-	 */
+	
 	struct timeval tv;
 	struct tm * timeinfo;
 

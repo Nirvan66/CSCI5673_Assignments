@@ -1,4 +1,15 @@
-// Server side implementation of UDP client-server model 
+/*
+Creator: Nirvan S.P. Theethira
+Date: 02/10/2020
+Purpose: CSCI5673 Assignment 1
+Description: Server side implementation of UDP client-server model 
+
+Sample Build:
+    gcc serve.c -o server
+Sample Run:
+    ./server
+Note: run server on the same address before client
+*/
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h> 
@@ -14,11 +25,13 @@
 #define PORT     8080 
 #define MAXLINE 1024 
 
+//Used to send time from server to client
 struct timetuple {
         int hours;
         int minutes;
         float seconds;
 };
+//Used to send time from server to client
 struct serverTime{
     struct timetuple receive;
     struct timetuple send;
@@ -41,10 +54,12 @@ int main() {
       
     // Filling server information 
     servaddr.sin_family = AF_INET; // IPv4 
-    servaddr.sin_addr.s_addr = INADDR_ANY; //inet_addr("127.0.0.1");
+    servaddr.sin_addr.s_addr = INADDR_ANY;
     servaddr.sin_port = htons(PORT); 
       
     // Bind the socket with the server address 
+    //defines a relationship between the socket created 
+    //and the addresses that are available on the host
     if ( bind(sockfd, (const struct sockaddr *)&servaddr,  
             sizeof(servaddr)) < 0 ) 
     { 

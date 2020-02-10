@@ -1,0 +1,25 @@
+UDP client:
+	Sample Build:
+	    gcc client.c -o client
+	Sample Run:
+	    ./client 0 test.txt
+
+UDP Server:
+	Sample Build:
+	    gcc serve.c -o server
+	Sample Run:
+	    ./server
+
+Note: run server on the same address before client
+
+RPC Client:
+	Sample Build:
+	    make
+	Sample Run:
+	    ./clock_client localhost test.txt
+
+RPC Server:
+	Sample Build:
+	    make
+	Sample Run:
+	    ./server_client
