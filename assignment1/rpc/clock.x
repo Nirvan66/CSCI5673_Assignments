@@ -1,8 +1,7 @@
 struct timetuple {
         int hours;
         int minutes;
-        int seconds;
-        long int u_seconds;
+        float seconds;
 };
 struct serverTime{
     struct timetuple receive;

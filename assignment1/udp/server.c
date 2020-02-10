@@ -9,15 +9,15 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
-  
+#include <math.h>
+
 #define PORT     8080 
 #define MAXLINE 1024 
 
 struct timetuple {
         int hours;
         int minutes;
-        int seconds;
-        long int u_seconds;
+        float seconds;
 };
 struct serverTime{
     struct timetuple receive;
@@ -72,36 +72,24 @@ int main() {
         timeinfo = localtime(&tv.tv_sec);
         sT.receive.hours = timeinfo->tm_hour;
         sT.receive.minutes = timeinfo->tm_min;
-        sT.receive.seconds = timeinfo->tm_sec;
-        sT.receive.u_seconds = tv.tv_usec;
+        sT.receive.seconds = timeinfo->tm_sec + (tv.tv_usec/pow(10,6));
         
-        buffer[n] = '\0'; 
-        printf("\n%s received from PORT:%d, ADDRESS:%d \n",
-         buffer, cliaddr.sin_port, cliaddr.sin_addr.s_addr);
-        printf("Server receive time: %d:%d:%d.%ld\n", 
-            sT.receive.hours, sT.receive.minutes, sT.receive.seconds, sT.receive.u_seconds );
+        printf("Server receive time: %d:%d:%f\n", 
+            sT.receive.hours, sT.receive.minutes, sT.receive.seconds);
 
         //get local time
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        gettimeofday(&tv, NULL); 
-        timeinfo = localtime(&tv.tv_sec);
         sT.send.hours = timeinfo->tm_hour;
         sT.send.minutes = timeinfo->tm_min;
-        sT.send.seconds = timeinfo->tm_sec;
-        sT.send.u_seconds = tv.tv_usec;
+        sT.send.seconds = timeinfo->tm_sec + (tv.tv_usec/pow(10,6));
 
-        // sprintf(serverTime, "%d:%d:%d.%ld", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        printf("Server send time: %d:%d:%f\n", 
+            sT.send.hours, sT.send.minutes, sT.send.seconds);
 
-        //send time
-        // sendto(sockfd, (const char *)serverTime, strlen(serverTime),  
-        //     MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
-        //         len); 
         sendto(sockfd, (const struct serverTime *)&sT, sizeof(sT),  
             MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
                 len);
-        printf("Server send time: %d:%d:%d.%ld\n", 
-            sT.send.hours, sT.send.minutes, sT.send.seconds, sT.send.u_seconds );
     } 
     return 0; 
 } 

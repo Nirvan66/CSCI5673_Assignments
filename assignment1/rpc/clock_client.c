@@ -8,9 +8,10 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>
 
 #define QUERY_MINUTES 120
-#define SLEEP_SECS 60
+#define SLEEP_SECS 1
 #define MAXLINE 1024
 
 
@@ -43,10 +44,10 @@ time_prog_1(char *host, char * saveFile)
     {	//time of client send
     	gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        sprintf(clientSend, "%d:%d:%d.%ld", 
-            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        sprintf(clientSend, "%d:%d:%f", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec + (tv.tv_usec/pow(10,6)));
         clientSend[strlen(clientSend)] = '\0';
-        printf("\nClient send time : %s\n", clientSend);
+        printf("\nClient send time: %s\n", clientSend);
 
 		result_1 = time_1((void*)&time_1_arg, clnt);
 		if (result_1 == (serverTime *) NULL) {
@@ -55,18 +56,18 @@ time_prog_1(char *host, char * saveFile)
 			//time of client receive
 			gettimeofday(&tv, NULL); 
 	        timeinfo = localtime(&tv.tv_sec);
-	        sprintf(clientReceive, "%d:%d:%d.%ld", 
-	            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+	        sprintf(clientReceive, "%d:%d:%f", 
+	            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec + (tv.tv_usec/pow(10,6)));
 	        clientReceive[strlen(clientReceive)] = '\0';
 
 
 	        //Extract Server times
-	        sprintf(serverReceive, "%d:%d:%d.%ld",
-	         result_1->receive.hours, result_1->receive.minutes, result_1->receive.seconds, result_1->receive.u_seconds);
+	        sprintf(serverReceive, "%d:%d:%f",
+	         result_1->receive.hours, result_1->receive.minutes, result_1->receive.seconds);
 	        serverReceive[strlen(serverReceive)] = '\0';
 
-	        sprintf(serverSend, "%d:%d:%d.%ld", 
-	            result_1->send.hours, result_1->send.minutes, result_1->send.seconds, result_1->send.u_seconds);
+	        sprintf(serverSend, "%d:%d:%f", 
+	            result_1->send.hours, result_1->send.minutes, result_1->send.seconds);
 	        serverSend[strlen(serverSend)] = '\0';
 
 	        printf("Server receive time: %s\n", serverReceive);

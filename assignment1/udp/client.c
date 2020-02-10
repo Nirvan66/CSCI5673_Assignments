@@ -9,17 +9,17 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+#include <math.h>
 
 #define PORT     8080 
 #define MAXLINE 1024 
 #define QUERY_MINUTES 120
-#define SLEEP_SECS 60
+#define SLEEP_SECS 1
 
 struct timetuple {
         int hours;
         int minutes;
-        int seconds;
-        long int u_seconds;
+        float seconds;
 };
 struct serverTime{
     struct timetuple receive;
@@ -87,10 +87,10 @@ int main(int argc, char * argv[]) {
         //request time
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        sprintf(clientSend, "%d:%d:%d.%ld", 
-            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        sprintf(clientSend, "%d:%d:%f", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec + (tv.tv_usec/pow(10,6)));
         clientSend[strlen(clientSend)] = '\0';
-        printf("\nClient send time : %s\n", clientSend);
+        printf("\nClient send time: %s\n", clientSend);
 
         sendto(sockfd, (const char *)timeRequest, strlen(timeRequest), 
             MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
@@ -103,17 +103,17 @@ int main(int argc, char * argv[]) {
         //time of reply
         gettimeofday(&tv, NULL); 
         timeinfo = localtime(&tv.tv_sec);
-        sprintf(clientReceive, "%d:%d:%d.%ld", 
-            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec);
+        sprintf(clientReceive, "%d:%d:%f", 
+            timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec + (tv.tv_usec/pow(10,6)));
         clientReceive[strlen(clientReceive)] = '\0';
 
         //Extract Server times
-        sprintf(serverReceive, "%d:%d:%d.%ld",
-         sT.receive.hours, sT.receive.minutes, sT.receive.seconds, sT.receive.u_seconds);
+        sprintf(serverReceive, "%d:%d:%f",
+         sT.receive.hours, sT.receive.minutes, sT.receive.seconds);
         serverReceive[strlen(serverReceive)] = '\0';
 
-        sprintf(serverSend, "%d:%d:%d.%ld", 
-            sT.send.hours, sT.send.minutes, sT.send.seconds, sT.send.u_seconds);
+        sprintf(serverSend, "%d:%d:%f", 
+            sT.send.hours, sT.send.minutes, sT.send.seconds);
         serverSend[strlen(serverSend)] = '\0';
 
         printf("Server receive time: %s\n", serverReceive);
@@ -124,6 +124,6 @@ int main(int argc, char * argv[]) {
         sleep(SLEEP_SECS);
     }
     fclose (fp);
-    close(sockfd); 
+    close(sockfd);
     return 0; 
 } 

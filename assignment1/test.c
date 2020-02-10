@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-#include<unistd.h>
+#include <unistd.h>
 #include <sys/time.h>
-
+# include <math.h>
 // char* getTime()
 // {
 //     time_t rawtime = time(NULL);;
@@ -19,8 +19,7 @@
 struct timetuple {
         int hours;
         int minutes;
-        int seconds;
-        long int u_seconds;
+        float seconds;
 };
 struct serverTime{
     struct timetuple receive;
@@ -37,15 +36,13 @@ int main()
     timeinfo = localtime(&tv.tv_sec);
     sT.receive.hours = timeinfo->tm_hour;
     sT.receive.minutes = timeinfo->tm_min;
-    sT.receive.seconds = timeinfo->tm_sec;
-    sT.receive.u_seconds = tv.tv_usec;
+    sT.receive.seconds = timeinfo->tm_sec + (tv.tv_usec/pow(10,6));
 
     gettimeofday(&tv, NULL); 
     timeinfo = localtime(&tv.tv_sec);
     sT.send.hours = timeinfo->tm_hour;
     sT.send.minutes = timeinfo->tm_min;
-    sT.send.seconds = timeinfo->tm_sec;
-    sT.send.u_seconds = tv.tv_usec;
+    sT.send.seconds = timeinfo->tm_sec + (tv.tv_usec/pow(10,6));
 
 	// struct timeval tv;
 	// char output[30];
