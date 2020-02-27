@@ -24,8 +24,8 @@ Note: run server on the same address before client
 
 #define PORT     8080 
 #define MAXLINE 1024 
-#define QUERY_MINUTES 120
-#define SLEEP_SECS 60
+#define QUERY_MINUTES 10
+#define SLEEP_SECS 1
 
 //Used to send time from server to client
 struct timetuple {
