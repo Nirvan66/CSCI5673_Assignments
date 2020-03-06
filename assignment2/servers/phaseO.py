@@ -351,7 +351,7 @@ if __name__=="__main__":
     midThread = threading.Thread(target=middlewareThread, name='middleware', 
         args=(midRunning, globalSeq, memberNumber, groupMembers, 
             FTq, commands, messages, seqNumsSent, 
-            ucast_sock, multiAddrPort, [2]))
+            ucast_sock, multiAddrPort))
     midThread.daemon = True
     midThread.start()
 
