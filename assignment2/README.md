@@ -8,7 +8,7 @@ Running this program is a multi-step process. First you should start up the numb
 
 Secondly you will start the client. For our implementation, we made the client a jupyter notebook. This allows us to send messages incrementally.
 
-__IMPORTANT__: make sure when adding the next server via command line you increment the properties ```--memberNumber``` and ```--uniPort```. An example is shown below.
+__IMPORTANT__: make sure when adding the next server via command line you increment the properties ```--memberNumber``` and ```--uniPort```. An example is shown below. When incrementing member numbers, DO NOT SKIP numbers. A valid set of member numbers would be [0, 1, 2, 3]. An invalid set of member numbers would be [0, 1, 3, 4].
 
 ### Server
 #### Linux
@@ -42,6 +42,7 @@ Notice how server 2 incremented its port number and member number.
 
 You will see some messages pass between the two servers, accepting eachother into the group. This can be ignored. 
 
+__IMPORTANT__: Again remember when adding the next server via command line you increment the properties ```--memberNumber``` and ```--uniPort```. An example is shown below. When incrementing member numbers, DO NOT SKIP numbers. A valid set of member numbers would be [0, 1, 2, 3]. An invalid set of member numbers would be [0, 1, 3, 4].
 ### Client
 The client is in the attached ```.ipyn``` file. Start jupyter notebook. If you are running on macOS, be sure to change the IP address for the ```clientAddrPort``` variable to the same Private IP Address used when starting the servers. You should then be able to click play on each cell. 
 
@@ -55,3 +56,5 @@ Everything described in Part 1 works. Some basic group membership protocol also 
 ## Sources of potential errors
 
 Its important to set the IP Address to your Private IP Address when running on macOS otherwise it will not run. 
+
+If you skip numbers when incrementing member numbers, the program will stall out and it will not make progress after a certain point. 
