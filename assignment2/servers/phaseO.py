@@ -84,7 +84,7 @@ def updateQueue(ftq, upComm):
         queue_id = int(upComm[1])
         ftq.qDestroy(queue_id)
 
-def mutiListner(multiRunning, commands, uniAddrPort):
+def mutiListner(multiRunning, commands, mcast_sock, uniAddrPort):
     '''
     Listens to group socket for messages
     '''
@@ -92,6 +92,7 @@ def mutiListner(multiRunning, commands, uniAddrPort):
     while(len(multiRunning)==0):
         try:
             data, addr = mcast_sock.recvfrom(10240)
+            # print('HERE')
             if addr!=uniAddrPort:
                 command = data.decode().split(',')
                 print("Received {} from {}".format(command, addr))
@@ -99,7 +100,7 @@ def mutiListner(multiRunning, commands, uniAddrPort):
         except:
             continue
 
-def uniListner(uniRunning, commands, uniAddrPort):
+def uniListner(uniRunning, commands, ucast_sock, uniAddrPort):
     '''
     Listens to unicast socket for messages
     '''
@@ -150,7 +151,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
                 print("Received join confirmation from {}".format(int(command[1])))
                 groupMembers[int(command[1])] = addr
 
-            # if denied exit for now,
+            # if group join request is denied, exit for now,
             # TODO: change for phase 2     
             elif command[0]=='joinDenied':
                 print("JOIN FAILED. MEMBER NUMBER {} ALREADY EXISTS. PICK ANOTHER".format(memberNumber))
@@ -176,7 +177,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
                 if command[1] not in messages.keys():
                     print("Received msg {} with id {}".format(command[2:],command[1]))
                     if globalSeq[0]%len(groupMembers) == memberNumber:
-                        print("SEQUENCING MESSAGE as {}".format(globalSeq))
+                        print("SEQUENCING MESSAGE as {}".format(globalSeq[0]))
                         seqNumsSent[globalSeq[0]] = command[1]
                         # if globalSeq not in testLostMessages:       #TESTING STUFF
                         segM = ('seq', command[1], globalSeq[0])
@@ -275,7 +276,7 @@ if __name__=="__main__":
     print("Starting Multicast socket listner thread")
     multiRunning = []
     multiThread = threading.Thread(target=mutiListner, name='multicast', 
-        args=(multiRunning, commands, uniAddrPort))
+        args=(multiRunning, commands, mcast_sock, uniAddrPort))
     multiThread.daemon = True
     multiThread.start()
 
@@ -283,7 +284,7 @@ if __name__=="__main__":
     print("Starting Unicast socket listner thread")
     uniRunning = []
     uniThread = threading.Thread(target=uniListner, name='unicast', 
-        args=(uniRunning, commands, uniAddrPort))
+        args=(uniRunning, commands, ucast_sock, uniAddrPort))
     uniThread.daemon = True
     uniThread.start()
 
