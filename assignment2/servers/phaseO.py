@@ -84,7 +84,7 @@ def updateQueue(ftq, upComm):
         queue_id = int(upComm[1])
         ftq.qDestroy(queue_id)
 
-def mutiListner(multiRunning, commands):
+def mutiListner(multiRunning, commands, uniAddrPort):
     '''
     Listens to group socket for messages
     '''
@@ -99,7 +99,7 @@ def mutiListner(multiRunning, commands):
         except:
             continue
 
-def uniListner(uniRunning, commands):
+def uniListner(uniRunning, commands, uniAddrPort):
     '''
     Listens to unicast socket for messages
     '''
@@ -114,7 +114,9 @@ def uniListner(uniRunning, commands):
         except:
             continue
 
-def middlewareThread(midRunning, globalSeq, memberNumber, groupMembers, FTq, commands, messages, seqNumsSent):
+def middlewareThread(midRunning, globalSeq, memberNumber, 
+    groupMembers, FTq, commands, messages, seqNumsSent, 
+    ucast_sock, multiAddrPort):
     while(len(midRunning)==0):
         time.sleep(0.01)
         if len(commands):
@@ -179,7 +181,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber, groupMembers, FTq, com
                         # if globalSeq not in testLostMessages:       #TESTING STUFF
                         segM = ('seq', command[1], globalSeq[0])
                         segM = ",".join(map(lambda x: str(x),segM))
-                        ucast_sock.sendto(str.encode(segM), (MCAST_GRP, MCAST_PORT))
+                        ucast_sock.sendto(str.encode(segM), multiAddrPort)
                         globalSeq[0] = globalSeq[0] + 1
                         ret = updateQueue(FTq, command[2:])
                         if ret!=None:
@@ -215,7 +217,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber, groupMembers, FTq, com
                 seqNumsSent[globalSeq[0]] = rndMsg
                 seqM = ('seq', rndMsg, globalSeq[0])
                 seqM = ",".join(map(lambda x: str(x),seqM))
-                ucast_sock.sendto(str.encode(seqM), (MCAST_GRP, MCAST_PORT))
+                ucast_sock.sendto(str.encode(seqM), multiAddrPort)
                 globalSeq[0] = globalSeq[0] + 1
                 ret = updateQueue(FTq, messages[rndMsg][0])
                 if ret!=None:
@@ -237,6 +239,7 @@ if __name__=="__main__":
     #setting up multicast socket to listen to
     MCAST_GRP = '224.0.0.1'
     MCAST_PORT = 5050
+    multiAddrPort = (MCAST_GRP, MCAST_PORT)
 
     IS_MACOS = False
     LOCAL_HOST = True
@@ -272,7 +275,7 @@ if __name__=="__main__":
     print("Starting Multicast socket listner thread")
     multiRunning = []
     multiThread = threading.Thread(target=mutiListner, name='multicast', 
-        args=(multiRunning, commands))
+        args=(multiRunning, commands, uniAddrPort))
     multiThread.daemon = True
     multiThread.start()
 
@@ -280,7 +283,7 @@ if __name__=="__main__":
     print("Starting Unicast socket listner thread")
     uniRunning = []
     uniThread = threading.Thread(target=uniListner, name='unicast', 
-        args=(uniRunning, commands))
+        args=(uniRunning, commands, uniAddrPort))
     uniThread.daemon = True
     uniThread.start()
 
@@ -302,7 +305,9 @@ if __name__=="__main__":
     print("Starting middleware command processor thread")             
     midRunning = []
     midThread = threading.Thread(target=middlewareThread, name='middleware', 
-        args=(midRunning, globalSeq, memberNumber, groupMembers, FTq, commands, messages, seqNumsSent))
+        args=(midRunning, globalSeq, memberNumber, groupMembers, 
+            FTq, commands, messages, seqNumsSent, 
+            ucast_sock, multiAddrPort))
     midThread.daemon = True
     midThread.start()
 
