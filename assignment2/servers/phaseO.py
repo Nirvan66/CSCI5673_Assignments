@@ -1,3 +1,18 @@
+'''
+Creators: Nirvan S P Theethira, Zach Allen McGrath
+Date: 3/6/2020
+Purpose: Used to run a member of the group of replicated
+FTQueue database.
+
+SAMPLE RUN LINUX: 
+python phaseO.py --uniAddr 127.0.0.1 --uniPort 8080 --memberNumber 0
+
+SAMPLE RUN MACOS: 
+
+SAMPLE HELP RUN:
+python phaseO.py --help
+'''
+
 import queue
 import socket
 import struct
@@ -5,6 +20,9 @@ import regex as re
 import threading 
 import os, sys
 import time
+import argparse
+
+IS_MACOS = False
 
 class FTQueue:
     def __init__(self):
@@ -117,7 +135,7 @@ def uniListner(uniRunning, commands, ucast_sock, uniAddrPort):
 
 def middlewareThread(midRunning, globalSeq, memberNumber, 
     groupMembers, FTq, commands, messages, seqNumsSent, 
-    ucast_sock, multiAddrPort):
+    ucast_sock, multiAddrPort, testLostMessages=[], testBuildup=[0]):
     while(len(midRunning)==0):
         time.sleep(0.01)
         if len(commands):
@@ -168,6 +186,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
                     globalSeq[0] = seqNo + 1
                     updateQueue(FTq, messages[msgid][0])
                     del messages[msgid]
+                    print("Incrementing global seq number to {}".format(globalSeq[0]))
                     print("Message {} processed and un buffered".format(msgid))
                 else:
                     print("Dropped sequence message {} TOO BIG".format(seqNo))
@@ -179,11 +198,12 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
                     if globalSeq[0]%len(groupMembers) == memberNumber:
                         print("SEQUENCING MESSAGE as {}".format(globalSeq[0]))
                         seqNumsSent[globalSeq[0]] = command[1]
-                        # if globalSeq not in testLostMessages:       #TESTING STUFF
-                        segM = ('seq', command[1], globalSeq[0])
-                        segM = ",".join(map(lambda x: str(x),segM))
-                        ucast_sock.sendto(str.encode(segM), multiAddrPort)
+                        if globalSeq[0] not in testLostMessages:       #TESTING STUFF
+                            segM = ('seq', command[1], globalSeq[0])
+                            segM = ",".join(map(lambda x: str(x),segM))
+                            ucast_sock.sendto(str.encode(segM), multiAddrPort)
                         globalSeq[0] = globalSeq[0] + 1
+                        print("Incrementing global seq number to {}".format(globalSeq[0]))
                         ret = updateQueue(FTq, command[2:])
                         if ret!=None:
                             print("Sending: {}".format(ret))
@@ -209,40 +229,69 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
         # messages end up being buffer due to message losses
         # handles Negative acknowledgement     
         elif len(messages):
-            print('')
-            seqsrNum = (globalSeq[0])%len(groupMembers)
-            # if not testBuildup:                           #TESTING STUFF
-            if seqsrNum == memberNumber:
-                rndMsg = messages.keys()[0]
-                print("Caught up with message losses. SQUENCING {}".format(rndMsg))
-                seqNumsSent[globalSeq[0]] = rndMsg
-                seqM = ('seq', rndMsg, globalSeq[0])
-                seqM = ",".join(map(lambda x: str(x),seqM))
-                ucast_sock.sendto(str.encode(seqM), multiAddrPort)
-                globalSeq[0] = globalSeq[0] + 1
-                ret = updateQueue(FTq, messages[rndMsg][0])
-                if ret!=None:
-                    print("Caught up. Sending: {}".format(ret))
-                    addr = messages[rndMsg][1]
-                    ucast_sock.sendto(str.encode(str(ret)), addr)
-                del messages[rndMsg]
-                print("All caught up. Message {} un buffered".format(msgid))
-            else:
-                seqsrAddr = groupMembers[seqsrNum]
-                print("Re requesting seguence number {} from group member {}"
-                      .format(globalSeq[0],seqsrNum))
-                reseqM = ('reseq', globalSeq[0])
-                reseqM = ",".join(map(lambda x: str(x),reseqM))
-                ucast_sock.sendto(str.encode(reseqM), seqsrAddr)
-            print('')
+            if len(testBuildup)!=0:                           #TESTING STUFF
+                print('')
+                seqsrNum = (globalSeq[0])%len(groupMembers)
+                if seqsrNum == memberNumber:
+                    rndMsg = messages.keys()[0]
+                    print("Caught up with message losses. SQUENCING {}".format(rndMsg))
+                    seqNumsSent[globalSeq[0]] = rndMsg
+                    seqM = ('seq', rndMsg, globalSeq[0])
+                    seqM = ",".join(map(lambda x: str(x),seqM))
+                    ucast_sock.sendto(str.encode(seqM), multiAddrPort)
+                    globalSeq[0] = globalSeq[0] + 1
+                    ret = updateQueue(FTq, messages[rndMsg][0])
+                    if ret!=None:
+                        print("Caught up. Sending: {}".format(ret))
+                        addr = messages[rndMsg][1]
+                        ucast_sock.sendto(str.encode(str(ret)), addr)
+                    del messages[rndMsg]
+                    print("All caught up. Message {} un buffered".format(msgid))
+                else:
+                    seqsrAddr = groupMembers[seqsrNum]
+                    print("Re requesting seguence number {} from group member {}"
+                          .format(globalSeq[0],seqsrNum))
+                    reseqM = ('reseq', globalSeq[0])
+                    reseqM = ",".join(map(lambda x: str(x),reseqM))
+                    ucast_sock.sendto(str.encode(reseqM), seqsrAddr)
+                print('')
 
 if __name__=="__main__":
+    parser = argparse.ArgumentParser(description='FTQueue replicated across server group')
+
+    parser.add_argument('--uniAddr', type=str, help='Address of unicast socket. Unique for each group member')
+    parser.add_argument('--uniPort', type=int, help='Port number of unicast socket. Unique for each group member')
+
+    parser.add_argument('--multiAddr', type=str, help='Address of multicast socket. Should be the same for all group members')
+    parser.add_argument('--multiPort', type=int, help='Port number of multicast socket. Should be the same for all group members')
+
+    parser.add_argument('--memberNumber', type=int, help='Logical member number assigned to each memeber. Unique for each group member')
+
+    args = parser.parse_args()
+
+    #setting up unicast socket to listen to
+    if args.uniAddr!=None and args.uniPort!=None and args.memberNumber!=None:
+        UCAST_IP = args.uniAddr
+        UCAST_P = args.uniPort
+        memberNumber = args.memberNumber
+    else:
+        print("Nessessary arguments not provide for group member.")
+        print("Run `python phaseO.py --help` for more information.")
+        os._exit(0)
+
     #setting up multicast socket to listen to
-    MCAST_GRP = '224.0.0.1'
-    MCAST_PORT = 5050
+    if args.multiAddr!=None and args.multiPort!=None:
+        MCAST_GRP = args.multiAddr
+        MCAST_PORT = args.multiPort
+    else:
+        MCAST_GRP = '224.0.0.1'
+        MCAST_PORT = 5050
+        print("Using default muticast address: {}".format((MCAST_GRP, MCAST_PORT)))
+
+
+    #setting up multicast socket to listen to
     multiAddrPort = (MCAST_GRP, MCAST_PORT)
 
-    IS_MACOS = False
     LOCAL_HOST = True
     reuse_option = socket.SO_REUSEADDR if not IS_MACOS else socket.SO_REUSEPORT
     level_option = socket.IP_ADD_MEMBERSHIP if not LOCAL_HOST else socket.IP_MULTICAST_LOOP
@@ -254,12 +303,6 @@ if __name__=="__main__":
     mcast_sock.setsockopt(socket.IPPROTO_IP, level_option, mreq)
     mcast_sock.settimeout(1.0)
     print("Multicasting on {}".format((MCAST_GRP, MCAST_PORT)))
-
-    #setting up unicast socket to listen to
-    UCAST_IP = str(input("Choose ADDRESS of unicast socket:"))
-    UCAST_P = int(input("Choose PORT of unicast socket:"))
-    # the number to assign this server
-    memberNumber = int(input("Choose group member number:"))
 
     uniAddrPort = (UCAST_IP, UCAST_P)
     ucast_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -308,7 +351,7 @@ if __name__=="__main__":
     midThread = threading.Thread(target=middlewareThread, name='middleware', 
         args=(midRunning, globalSeq, memberNumber, groupMembers, 
             FTq, commands, messages, seqNumsSent, 
-            ucast_sock, multiAddrPort))
+            ucast_sock, multiAddrPort, [2]))
     midThread.daemon = True
     midThread.start()
 
