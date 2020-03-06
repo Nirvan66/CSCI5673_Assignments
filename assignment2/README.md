@@ -57,4 +57,10 @@ Everything described in Part 1 works. Some basic group membership protocol also 
 
 Its important to set the IP Address to your Private IP Address when running on macOS otherwise it will not run. 
 
-If you skip numbers when incrementing member numbers, the program will stall out and it will not make progress after a certain point. 
+If you skip numbers when incrementing member numbers, the program will stall out and it will not make progress after a certain point.
+
+## Note
+* There is a small change form the architecture discussed in class. 
+* In class we discussed that the client contacts a single server and the server fowards this message to other servers and
+the servers then run the sequencing algorithm
+* To avoid this extra broadcast step, the client uses server group address to send messages to all servers in the group. The servers use the consensus algorithm to sequence the message among themselves and a single reply from the server choosen to be the sequencer is sent to the client (if a reply is needed, eg: `qTop` function returns int).
