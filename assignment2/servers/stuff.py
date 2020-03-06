@@ -1,12 +1,12 @@
 import time
 import threading
-def test1Listner():
-    while(test1Runnig):
-        time.sleep(2)
+def test1Listner(test1Runnig,num,lis,dic):
+    print(num)
+    print(lis)
+    print(dic)
+    while(len(test1Runnig)==0):
+        time.sleep(5)
         lis.append(1)
-        print(num)
-        print(lis)
-        print(dic)
         
         
 if __name__=="__main__":
