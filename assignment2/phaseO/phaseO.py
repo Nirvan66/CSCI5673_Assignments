@@ -12,6 +12,8 @@ python phaseO.py --uniAddr <Private IP Address> --uniPort 8080 --memberNumber 0 
 
 SAMPLE HELP RUN:
 python phaseO.py --help
+
+Note: Change uniPort and memberNumber when staring new members.
 '''
 
 import queue
@@ -232,7 +234,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber,
                 print('')
                 seqsrNum = (globalSeq[0])%len(groupMembers)
                 if seqsrNum == memberNumber:
-                    rndMsg = messages.keys()[0]
+                    rndMsg = list(messages.keys())[0]
                     print("Caught up with message losses. SQUENCING {}".format(rndMsg))
                     seqNumsSent[globalSeq[0]] = rndMsg
                     seqM = ('seq', rndMsg, globalSeq[0])
