@@ -8,6 +8,7 @@ SAMPLE RUN LINUX:
 python phaseO.py --uniAddr 127.0.0.1 --uniPort 8080 --memberNumber 0
 
 SAMPLE RUN MACOS: 
+python phaseO.py --uniAddr <Private IP Address> --uniPort 8080 --memberNumber 0 --IS_MACOS True
 
 SAMPLE HELP RUN:
 python phaseO.py --help
@@ -21,8 +22,6 @@ import threading
 import os, sys
 import time
 import argparse
-
-IS_MACOS = False
 
 class FTQueue:
     def __init__(self):
@@ -267,6 +266,8 @@ if __name__=="__main__":
 
     parser.add_argument('--memberNumber', type=int, help='Logical member number assigned to each memeber. Unique for each group member')
 
+    parser.add_argument('--IS_MACOS', type=bool, help='Pass `True` for MACOS', default=False)
+
     args = parser.parse_args()
 
     #setting up unicast socket to listen to
@@ -293,6 +294,7 @@ if __name__=="__main__":
     multiAddrPort = (MCAST_GRP, MCAST_PORT)
 
     LOCAL_HOST = True
+    IS_MACOS = args.IS_MACOS
     reuse_option = socket.SO_REUSEADDR if not IS_MACOS else socket.SO_REUSEPORT
     level_option = socket.IP_ADD_MEMBERSHIP if not LOCAL_HOST else socket.IP_MULTICAST_LOOP
     mcast_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
