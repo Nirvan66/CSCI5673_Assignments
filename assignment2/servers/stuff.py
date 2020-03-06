@@ -1,35 +1,24 @@
-def processCommand(command, addr):
-    # if another member sends a join request to already existing group
-    if command[0]=='joinRequest':
-        newMemberNum = int(command[1])
-        if addr not in groupMembers and addr!=uniAddrPort:
-            # if number already exists denie join reques
-            if newMemberNum in groupMembers.keys():
-                denJoin = ('joinDenied',)
-                denJoin = ",".join(map(lambda x: str(x),denJoin))
-                ucast_sock.sendto(str.encode(denJoin), addr)
-            # if member number does not exist accept join request
-            # send conformation with your member number
-            else:
-                groupMembers[newMemberNum] = addr
-                confJoin = ('joinConfirm', memberNumber)
-                confJoin = ",".join(map(lambda x: str(x),confJoin))
-                ucast_sock.sendto(str.encode(confJoin), addr)
-    # collect confirmation messages sent by other group members.
-    # collect member numbers and addresses.
-    elif command[0]=='joinConfirm':
-        if addr not in groupMembers and addr!=uniAddrPort:
-            groupMembers[int(command[1])] = addr
-            
-    # if denied exit for now     
-    elif command[0]=='joinDenied':
-        print("MEMBER NUMBER {} ALREADY EXISTS. PICK ANOTHER".format(memberNumber))
-        os._exit(0)
+import time
+import threading
+def test1Listner():
+    while(test1Runnig):
+        time.sleep(2)
+        lis.append(1)
+        print(num)
+        print(lis)
+        print(dic)
         
-    # if sequence number is received for a message
-    elif command[0]=='seq':
-        sequences.append(command[1:])
         
-    # if a msg is recived from the client
-    elif command[0]=='msg': 
-        messages[command[1]] = command[2:]
+if __name__=="__main__":
+    num = 1
+    lis = [1,2,3]
+    dic = {1:'1',2:'2'}
+    test1Runnig = True
+    test1Thread = threading.Thread(target=test1Listner, name='test1')
+    test1Thread.daemon = True
+    test1Thread.start()
+    while(test1Runnig):
+        inp = input("'1' to end thread:")
+        if inp=='1':
+            test1Runnig = False
+    test1Thread.join()
