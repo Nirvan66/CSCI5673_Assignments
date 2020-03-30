@@ -5,13 +5,13 @@ Purpose: Used to run a member of the group of replicated
 FTQueue database.
 
 SAMPLE RUN LINUX: 
-python phaseO.py --uniAddr 127.0.0.1 --uniPort 8080 --memberNumber 0
+python phase1.py --uniAddr 127.0.0.1
 
 SAMPLE RUN MACOS: 
-python phaseO.py --uniAddr <Private IP Address> --uniPort 8080 --memberNumber 0 --IS_MACOS True
+python3 phase1.py --uniAddr <Private IP Address> --IS_MACOS True
 
 SAMPLE HELP RUN:
-python phaseO.py --help
+python phase1.py --help
 
 Note: Change uniPort and memberNumber when staring new members.
 '''

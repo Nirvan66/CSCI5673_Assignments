@@ -1,23 +1,25 @@
-#  Programming Assignment  Part 1
+#  Programming Assignment
 
 ## Running
 
 This program uses python3. It will not work with python2.
 
-Running this program is a multi-step process. First you should start up the number of servers you want in your system. The steps for doing so are below in the "server" section. 
-
-Secondly you will start the client. For our implementation, we made the client a jupyter notebook. This allows us to send messages incrementally.
-
-__IMPORTANT__: make sure when adding the next server via command line you increment the properties ```--memberNumber``` and ```--uniPort```. An example is shown below. When incrementing member numbers, DO NOT SKIP numbers. A valid set of member numbers would be [0, 1, 2, 3]. An invalid set of member numbers would be [0, 1, 3, 4].
+Running the service is two step process:
+1. Start the desired number of servers
+    1. change the directory with `phase1.py`
+    2. Follow the instructions below for your operating system to run the server
+2. Start and run the client with deisred commands
+    1. A jupyter notebook called `testClient.ipynb` is provided with a set of commands
+    2. Special instructions are given below for running on macOS
 
 ### Server
 #### Linux
 ```
-python phaseO.py --uniAddr 127.0.0.1 --uniPort 8080 --memberNumber 0
+python phase1.py --uniAddr 127.0.0.1 
 ```
 #### macOS
 ```
-python phaseO.py --uniAddr <Private IP Address> --uniPort 8080 --memberNumber 0 --IS_MACOS True
+python phase1.py --uniAddr <Private IP Address> --IS_MACOS True
 ```
 For macOS, the Private IP Address can be found in 
 
@@ -30,34 +32,34 @@ We will start 2 servers here.
 
 Server 1
 ```
-python phaseO.py --uniAddr 127.0.0.1 --uniPort 8080 --memberNumber 0
+python phase1.py --uniAddr 127.0.0.1 
 ```
 
 Server 2
 ```
-python phaseO.py --uniAddr 127.0.0.1 --uniPort 8081 --memberNumber 1
+python phase1.py --uniAddr 127.0.0.1 
 ```
 
-Notice how server 2 incremented its port number and member number. 
 
-You will see some messages pass between the two servers, accepting eachother into the group. This can be ignored. 
+You will see some messages pass between the two servers, accepting eachother into the group. 
 
-__IMPORTANT__: Again remember when adding the next server via command line you increment the properties ```--memberNumber``` and ```--uniPort```. An example is shown below. When incrementing member numbers, DO NOT SKIP numbers. A valid set of member numbers would be [0, 1, 2, 3]. An invalid set of member numbers would be [0, 1, 3, 4].
 ### Client
-The client is in the attached ```.ipyn``` file. Start jupyter notebook. If you are running on macOS, be sure to change the IP address for the ```clientAddrPort``` variable to the same Private IP Address used when starting the servers. You should then be able to click play on each cell. 
+The client is in the attached ```.ipynb``` file. Start jupyter notebook. If you are running on macOS, be sure to change the IP address for the ```clientAddrPort``` variable to the same Private IP Address used when starting the servers. You should then be able to click play on each cell. 
 
 You will observe the two servers communicating in the terminals that you started the servers in and replies to the client in the jupyter notebook.
 
 
 ## What works and what doesn't
 
-Everything described in Part 1 works. Some basic group membership protocol also works, thus the need to increment your group number and the send of the 'join' messages when servers start. 
+Everything described in the write up for part 2 works. 
+
+### Partition simulation
+Partitions are mocked since all servers are run on the same machine. This is done by a `groupID`. If an incoming `groupID` does not match the current `groupID` and the message is not a join message, the message is ignored, simulating a partition. After a set number (3 is hardcoded) of client messages are recieved, then the partitions join and merge their logs. 
 
 ## Sources of potential errors
 
 Its important to set the IP Address to your Private IP Address when running on macOS otherwise it will not run. 
 
-If you skip numbers when incrementing member numbers, the program will stall out and it will not make progress after a certain point.
 
 ## Note
 * There is a small change form the architecture discussed in class. 
