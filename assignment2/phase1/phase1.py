@@ -529,6 +529,8 @@ def middlewareThread(midRunning, globalSeq, memberNumber, viewMemberNumber, grou
                     # clear our queues and do these log updates
                     print('Updated logs to be')
                     print(totalLog)
+                    globalSeq[0] = 0
+                    print('Reset globalSeq to 0')
                     FTq = None
                     FTq = FTQueue()
                     for log in totalLog:
@@ -555,6 +557,8 @@ def middlewareThread(midRunning, globalSeq, memberNumber, viewMemberNumber, grou
                 for log in totalLogs:
                     l = log.split(':')
                     updateQueue(FTq, l)
+                print('Reset globalSeq to 0')
+                globalSeq[0] = 0
                         
             ############################################################
             #                  MOCKING PARTITION
@@ -665,7 +669,7 @@ def middlewareThread(midRunning, globalSeq, memberNumber, viewMemberNumber, grou
                     addr = messages[rndMsg][1]
                     ucast_sock.sendto(str.encode(str(ret)), addr)
                 del messages[rndMsg]
-                print("All caught up. Message {} un buffered".format(msgid))
+                print("All caught up. Message {} un buffered".format(rndMsg))
                 print('global sequence number is now {}'.format(globalSeq[0]))
             else:
                 # send NAK and ask for sequence number to be retransmitted 
